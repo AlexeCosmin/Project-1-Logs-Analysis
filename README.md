@@ -4,8 +4,18 @@ PROJECT LOGS ANALYSIS
 Create a reporting tool that prints out reports (in plain text) based on the data in the database. This reporting tool is a Python program using the psycopg2 module to connect to the database.
 
 File containing database : newsdata.sql
+File with views created : views.sql
 Source code file : logsanalysis.py
 Program's output file : project1_output.txt
+Requirements : Python and Postgres installed
+Prior running the program , you have to set up the database, therefore :
+
+#If no password is requireed to connect to Postgres , '-U postgres' is not required 
+Step 1:  Connect to Postgres -- psql -U postgres
+Step 2:  Create new db news -- create database news;
+Step 3:  Exit Postgres -- \q
+Step 4:  Import data from newsdata.sql file to db news and connect to it -- psql -U postgres -d news -f newsdata.sql
+Step 5:  Create views
 
 
 BRING ORDER TO CHAOS BY CREATING VIEWS IN DATABASE
@@ -52,7 +62,7 @@ CREATE VIEW finalview AS
 SELECT path,
 	COUNT( * ) AS views,
 	name,
-	title,
+	title
 FROM relevantlogs
 GROUP BY path,name,title
 ORDER BY views DESC;
@@ -78,8 +88,8 @@ Until here first 2 questions are covered and for the last question we need just 
 
 CREATE VIEW statuslogs AS
 SELECT status,
-	date(time) as req_date,
-FROM logs;
+	date(time) as req_date
+FROM log;
 
 
 # create view to show status day by day
@@ -114,4 +124,15 @@ ON statusperday.req_date=requestsperday.req_date;
 
 
 
-Now we have order and we can answer the questions by interogating views : finalview and dailypercentage
+Now evrything is set up , we have order and we can answer the questions by interogating views : finalview and dailypercentage
+
+Step 6:  Exit db by typing \d then write in command line 'python logsanalysis.py'
+
+
+If views.sql was downloaded:
+
+Step 4:  Import data from newsdata.sql file to db news -- psql -U postgres -f newsdata.sql
+Step 5:  Create views from views.sql -- psql -U postgres -f views.sql
+Step 6:  Run program -- python logsanalysis.py
+
+
