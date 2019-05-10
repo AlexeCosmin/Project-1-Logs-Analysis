@@ -8,6 +8,7 @@ File with views created : views.sql
 Source code file : logsanalysis.py
 Program's output file : project1_output.txt
 Requirements : Python and Postgres installed
+Python modules required : termcolor and colorama. If not already installed, write in command line 'pip install colorama termcolor'
 Prior running the program , you have to set up the database, therefore :
 
 #If no password is requireed to connect to Postgres , '-U postgres' is not required 
@@ -126,13 +127,13 @@ ON statusperday.req_date=requestsperday.req_date;
 
 Now evrything is set up , we have order and we can answer the questions by interogating views : finalview and dailypercentage
 
-Step 6:  Exit db by typing \d then write in command line 'python logsanalysis.py'
+Step 6:  Exit db by typing \q and run program -- python logsanalysis.py , if no user and password is required in order to connect to DB , press Enter when DB user and Password is requested
 
 
 If views.sql was downloaded:
 
 Step 4:  Import data from newsdata.sql file to db news -- psql -U postgres -f newsdata.sql
 Step 5:  Create views from views.sql -- psql -U postgres -f views.sql
-Step 6:  Run program -- python logsanalysis.py
+Step 6:  Run program -- python logsanalysis.py , if no user and password is required in order to connect to DB , press Enter when DB user and Password is requested
 
 
