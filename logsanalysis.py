@@ -1,4 +1,4 @@
-#! /usr/bin/env python3
+#!/usr/bin/env python3
 
 import psycopg2
 import getpass
@@ -9,13 +9,9 @@ from colorama import init
 
 init()
 
+# name of database
 
 DBNAME = "news"
-
-# if user and password is required
-
-DB_user = raw_input("DB user: ")
-my_pass = getpass.getpass()
 
 # creating DB queries
 
@@ -54,6 +50,24 @@ def view2(x):
         print('{0:10} {1:5} {2:>4}{3:10}'.format(str(e[0]),
               " -- ", str(e[1]), "% errors"))
         print("-" * 70)
+
+# create function for input as string
+
+
+def my_input(x):
+
+    try:
+
+        a = raw_input(x)
+    except NameError:
+        a = input(x)
+    return a
+
+
+# my inputs
+
+DB_user = my_input("DB user: ")
+my_pass = getpass.getpass()
 
 # create function to connect to DB with or without password and execute queries
 
