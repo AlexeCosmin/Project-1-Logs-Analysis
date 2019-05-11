@@ -1,9 +1,9 @@
-PROJECT LOGS ANALYSIS
+#PROJECT LOGS ANALYSIS
 
 
 Create a reporting tool that prints out reports (in plain text) based on the data in the database. This reporting tool is a Python program using the psycopg2 module to connect to the database.
 
-File containing database : newsdata.sql
+File containing database : newsdata.sql. You can download the file from [link][here]. You will need to unzip this file after downloading it.
 File with views created : views.sql
 Source code file : logsanalysis.py
 Program's output file : project1_output.txt
@@ -11,33 +11,43 @@ Requirements : Python and Postgres installed
 Python modules required : termcolor and colorama. If not already installed, write in command line 'pip install colorama termcolor'
 Prior running the program , you have to set up the database, therefore :
 
-#If no password is requireed to connect to Postgres , '-U postgres' is not required 
-Step 1:  Connect to Postgres -- psql -U postgres
-Step 2:  Create new db news -- create database news;
-Step 3:  Exit Postgres -- \q
-Step 4:  Import data from newsdata.sql file to db news and connect to it -- psql -U postgres -d news -f newsdata.sql
-Step 5:  Create views
+## Steps to set up database
+
+_If no password is requireed to connect to Postgres , '-U postgres' is not required in step 1 and 4_
+
+* Step 1:  Connect to Postgres -- psql -U postgres
+* Step 2:  Create new db news -- create database news;
+* Step 3:  Exit Postgres -- \q
+* Step 4:  Import data from newsdata.sql file to db news and connect to it -- psql -U postgres -d news -f newsdata.sql
+* Step 5:  Create views
+* Step 6:  Exit db by typing \q and run program -- python logsanalysis.py , if no user and password is required in order to connect to DB , press Enter when DB user and password is requested
 
 
-BRING ORDER TO CHAOS BY CREATING VIEWS IN DATABASE
+_If views.sql was downloaded:_
+
+* Step 4:  Import data from newsdata.sql file to db news -- psql -U postgres -f newsdata.sql
+* Step 5:  Create views from views.sql -- psql -U postgres -f views.sql
+* Step 6:  Run program -- python logsanalysis.py , if no user and password is required in order to connect to DB , press Enter when DB user and Password is requested
 
 
-Three tables:
+**BRING ORDER TO CHAOS BY CREATING VIEWS IN DATABASE**
 
-          List of relations
- Schema |   Name   | Type  |  Owner
---------+----------+-------+---------
- public | articles | table | vagrant
- public | authors  | table | vagrant
- public | log      | table | vagrant
 
+Three tables inside database NEWS:
+
+Schema | Name | Type | Owner
+______ | ____ | ____ | _____
+public | articles | table | vagrant
+public | authors | table | vagrant
+public | log | table | vagrant
 
  id column from table authors relates with author column from table articles
  slug column from table articles relates with column path from table log (slug is included in path but not equal) ... CONCAT to the rescue
 
 
-# create view to put together relevant combined data from articles and authors and making possible to relate with log
+### create view to put together relevant combined data from articles and authors and making possible to relate with log
 
+'''sql
 CREATE VIEW relevant AS
 SELECT articles.title,
 	articles.slug,
@@ -45,20 +55,24 @@ SELECT articles.title,
 	authors.name
 FROM articles INNER JOIN authors
 ON articles.author=authors.id;
+'''
 
 
-# create view to show only logs relevant to articles
+### create view to show only logs relevant to articles
 
+'''sql
 CREATE VIEW relevantlogs AS
 SELECT log.path,
 	relevant.title,
 	relevant.name
 FROM log JOIN relevant
 ON log.path=relevant.path;
+'''
 
 
-# create view to make it easier in python 
+### create view to make it easier in python 
 
+'''sql
 CREATE VIEW finalview AS
 SELECT path,
 	COUNT( * ) AS views,
@@ -67,73 +81,56 @@ SELECT path,
 FROM relevantlogs
 GROUP BY path,name,title
 ORDER BY views DESC;
+'''
 
 
-               path                | views  |          name          |               title
-------------------------------------+--------+------------------------+------------------------------------
- /article/candidate-is-jerk         | 338647 | Rudolf von Treppenwitz | Candidate is jerk, alleges rival
- /article/bears-love-berries        | 253801 | Ursula La Multa        | Bears love berries, alleges bear
- /article/bad-things-gone           | 170098 | Anonymous Contributor  | Bad things gone, say good people
- /article/goats-eat-googles         |  84906 | Ursula La Multa        | Goats eat Google's lawn
- /article/trouble-for-troubled      |  84810 | Rudolf von Treppenwitz | Trouble for troubled troublemakers
- /article/balloon-goons-doomed      |  84557 | Markoff Chaney         | Balloon goons doomed
- /article/so-many-bears             |  84504 | Ursula La Multa        | There are a lot of bears
- /article/media-obsessed-with-bears |  84383 | Ursula La Multa        | Media obsessed with bears
-(8 rows)
+### create view to change data type from date with time stamp to date type for column time
 
-
-Until here first 2 questions are covered and for the last question we need just table log and columns status and time
-
-
-# create view to change data type from date with time stamp to date type for column time
-
+'''sql
 CREATE VIEW statuslogs AS
 SELECT status,
 	date(time) as req_date
 FROM log;
+'''
 
 
-# create view to show status day by day
+### create view to show status day by day
 
+'''sql
 CREATE VIEW statusperday AS
 SELECT status,
 	req_date,
 	COUNT(status) AS requests
 FROM statuslogs
 GROUP BY req_date,status;
+'''
 
 
-# create view all request day by day , successful and unsuccessful
+### create view all request day by day , successful and unsuccessful
 
+'''sql
 CREATE VIEW requestsperday AS
 SELECT req_date,
 	COUNT(req_date) AS allreq
 FROM statuslogs
 GROUP BY req_date;
+'''
 
 
 
-# create view to show daily percentage for each status
+### create view to show daily percentage for each status
 
-
+''''sql
 CREATE VIEW dailypercentage AS
 SELECT statusperday.status,
 	statusperday.req_date,
 	ROUND(100 * (statusperday.requests::numeric/requestsperday.allreq),2) AS percentage
 FROM statusperday LEFT JOIN requestsperday
 ON statusperday.req_date=requestsperday.req_date;
+'''
 
 
 
-Now evrything is set up , we have order and we can answer the questions by interogating views : finalview and dailypercentage
+_Now evrything is set up , we have order and we can answer the questions by interogating views : finalview and dailypercentage_
 
-Step 6:  Exit db by typing \q and run program -- python logsanalysis.py , if no user and password is required in order to connect to DB , press Enter when DB user and Password is requested
-
-
-If views.sql was downloaded:
-
-Step 4:  Import data from newsdata.sql file to db news -- psql -U postgres -f newsdata.sql
-Step 5:  Create views from views.sql -- psql -U postgres -f views.sql
-Step 6:  Run program -- python logsanalysis.py , if no user and password is required in order to connect to DB , press Enter when DB user and Password is requested
-
-
+[here](https://d17h27t6h515a5.cloudfront.net/topher/2016/August/57b5f748_newsdata/newsdata.zip)
