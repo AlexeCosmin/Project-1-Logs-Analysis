@@ -64,11 +64,6 @@ def my_input(x):
     return a
 
 
-# my inputs
-
-DB_user = my_input("DB user: ")
-my_pass = getpass.getpass()
-
 # create function to connect to DB with or without password and execute queries
 
 
@@ -119,4 +114,6 @@ def connect():
 
 
 if __name__ == '__main__':
+    DB_user = my_input("DB user: ")
+    my_pass = getpass.getpass()
     connect()
